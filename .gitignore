@@ -1,0 +1,6 @@
+__pycache_/*
+media/*
+models/*
+tools/*
+.DS_Store
+
