@@ -4,14 +4,14 @@ import numpy as np
 import image_preprocess
 from matplotlib.colors import LogNorm
 import get_xy
+import matplotlib
+matplotlib.use('Agg')
 
-def main(video_path = "media/perfectly-small.mp4", minimum_movement=100, bins=[60, 130], alpha=0.6, title="rally", output_path="media/heatmap.png", corners=[[261, 241], [1054, 240], [1294, 748], [6, 748]]):
+def main(video_path="media/perfectly-small.mp4", minimum_movement=100, bins=[60, 130], alpha=0.6, title="rally", output_path="media/heatmap.png", corners=[[261, 241], [1054, 240], [1294, 748], [6, 748]]):
     frame, matrix = image_preprocess.main(video_path, corners)
     frame_height, frame_width, _ = frame.shape
     
     points = get_xy.main(video_path)
-    # with open('points.json', 'r') as json_file:
-    #     points = json.load(json_file)
     points_list = []
     print(f"got points: {points}")
 
@@ -36,21 +36,20 @@ def main(video_path = "media/perfectly-small.mp4", minimum_movement=100, bins=[6
         range=[[0, frame_width], [0, frame_height]] 
     )
 
-   
-
     plt.imshow(frame, aspect='auto', origin="upper")
-
     plt.pcolormesh(xedges, yedges, heatmap.T, shading='auto', cmap='cool', alpha=alpha, norm=LogNorm())
-
     plt.title(title)
     plt.xlabel('Court Width (cm)')
     plt.ylabel('Court Length (cm)')
     plt.grid(True)
     plt.colorbar(label='Foot Position Count')
-    output_path = output_path
-    plt.savefig(output_path)
-    return output_path
+
+    # Instead of saving the plot, return the figure object
+    fig = plt.gcf()  # Get the current figure
+    return fig
 
 
 if __name__ == "__main__":
-    main()
+    fig = main()
+    fig.savefig("media/heatmap_output.png")  # Save the figure outside the function
+    plt.close(fig)  # Close the figure after saving
