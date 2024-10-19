@@ -1,7 +1,8 @@
+import json
 import time
 import cv2
 
-video_path = 'media/sample.mp4'
+video_path = '/Users/bolt/Downloads/pranavi_abbie/full_vid.mp4'
 cap = cv2.VideoCapture(video_path)
 
 playing = True
@@ -56,36 +57,43 @@ def draw_table(frame, sets):
         x_position = 50 + i * 150
         for j, score in enumerate(set):
             y_position = 50 + j * 50
+            # Clear old score by drawing a filled rectangle
+            cv2.rectangle(frame, (x_position - 20, y_position - 30), (x_position + 60, y_position + 10), (0, 0, 0), -1)
             colour = (0, 255, 0) if j == highlighted_row else (255, 255, 255)
             cv2.putText(frame, str(score), (x_position, y_position), cv2.FONT_HERSHEY_SIMPLEX, 1, colour, 2, cv2.LINE_AA)
+
 
 fourcc = cv2.VideoWriter_fourcc(*'mp4v')
 out = cv2.VideoWriter("cut.mp4", fourcc, frame_rate, (int(cap.get(3)), int(cap.get(4))))
 
 while cap.isOpened():
+    print(f"playing: {playing}")
+    print(f"cutting: {cutting}")
     
     if playing:
         ret, frame = cap.read()
-
-        if not ret:
-            print("End of video reached")
-            break
-
-        if cutting:
-            frame = apply_red_filter(frame)
-
-        draw_table(frame, sets)
-
-        cv2.imshow('Video', frame)
-
         current_frame += 1
-        if current_frame >= total_frames:
-            print("End of video reached")
+    draw_table(frame, sets)
 
-        if not cutting:
-            out.write(frame)
-        
-    key = cv2.waitKey(delay) & 0xFF
+    cv2.imshow('Video', frame)
+    
+    if not ret:
+        print("End of video reached")
+        break
+
+    if cutting:
+        frame = apply_red_filter(frame)
+    else:
+        out.write(frame)
+
+    if delay < 0:
+        # Speed-up video when delay is negative
+        skip_frames = max(1, abs(delay))  # Ensure at least 1 frame is skipped
+        current_frame = min(current_frame + (frame_jump//2), total_frames - 1)
+        set_video_frame(current_frame)
+        key = cv2.waitKey(1) & 0xFF  # No delay, as you're skipping frames
+    else:
+        key = cv2.waitKey(delay) & 0xFF  # Normal delay behavior when delay >= 0
 
 
     if key == ord('p'):
@@ -127,7 +135,6 @@ while cap.isOpened():
     elif key == ord('l'):
         points[-1]['end'] = current_frame
         cutting = False
-        print(points)
     
     
         
@@ -138,3 +145,6 @@ while cap.isOpened():
 cap.release()
 out.release()
 cv2.destroyAllWindows()
+print(points)
+with open('points.json', 'w') as fp:
+    json.dump(points, fp)
