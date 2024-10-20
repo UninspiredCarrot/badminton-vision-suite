@@ -3,5 +3,5 @@ media/*
 models/*
 tools/*
 .DS_Store
-
+video-app/build/
 *.mp4
