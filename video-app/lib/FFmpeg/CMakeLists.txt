@@ -21,12 +21,13 @@ target_include_directories(FFmpeg INTERFACE
     ${SWSCALE_INCLUDE_DIRS}
 )
 
-target_link_options(FFmpeg INTERFACE
-    ${AVCODEC_LDFLAGS}
-    ${AVFORMAT_LDFLAGS}
-    ${AVFILTER_LDFLAGS}
-    ${AVDEVICE_LDFLAGS}
-    ${AVUTIL_LDFLAGS}
-    ${SWRESAMPLE_LDFLAGS}
-    ${SWSCALE_LDFLAGS}
+# Link to the actual libraries rather than just LDFLAGS
+target_link_libraries(FFmpeg INTERFACE
+    PkgConfig::AVCODEC
+    PkgConfig::AVFORMAT
+    PkgConfig::AVFILTER
+    PkgConfig::AVDEVICE
+    PkgConfig::AVUTIL
+    PkgConfig::SWRESAMPLE
+    PkgConfig::SWSCALE
 )
