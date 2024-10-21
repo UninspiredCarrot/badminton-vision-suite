@@ -4,6 +4,7 @@ set(CMAKE_CXX_STANDARD 14)
 
 find_package(OpenGL REQUIRED)
 find_package(glfw3 REQUIRED)
+add_subdirectory(lib/FFmpeg)
 
 add_executable(video-app src/main.cpp)
-target_link_libraries(video-app OpenGL::GL glfw)
+target_link_libraries(video-app FFmpeg OpenGL::GL glfw ${EXTRA_LIBS})
